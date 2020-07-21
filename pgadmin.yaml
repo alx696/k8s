@@ -1,0 +1,44 @@
+# 定义部署方式 https://kubernetes.io/zh/docs/concepts/overview/working-with-objects/kubernetes-objects/#%E6%8F%8F%E8%BF%B0-kubernetes-%E5%AF%B9%E8%B1%A1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin-deployment
+  labels:
+    app: pgadmin
+spec:
+  selector:
+    matchLabels:
+      app: pgadmin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+      - image: dpage/pgadmin4:latest
+        name: pgadmin
+        env:
+        - name: PGADMIN_DEFAULT_EMAIL
+          value: p@g.cn
+        - name: PGADMIN_DEFAULT_PASSWORD
+          value: postgres
+        ports:
+        - containerPort: 80
+---
+# 定义服务 https://kubernetes.io/zh/docs/concepts/services-networking/service/#%E5%AE%9A%E4%B9%89-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin-service
+  labels:
+    app: pgadmin
+spec:
+  # 暴露端口 https://kubernetes.io/zh/docs/concepts/services-networking/service/#nodeport-%E7%B1%BB%E5%9E%8B
+  type: NodePort
+  selector:
+    app: pgadmin
+  ports:
+    - port: 80
+      # 范围限制在30000-32767
+      nodePort: 30433

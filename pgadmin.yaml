@@ -1,3 +1,35 @@
+# 持久卷
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pgadmin-pvc
+  labels:
+    app: pgadmin
+spec:
+  storageClassName: rook-ceph-block
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# 服务 https://kubernetes.io/zh/docs/concepts/services-networking/service/#%E5%AE%9A%E4%B9%89-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin-service
+  labels:
+    app: pgadmin
+spec:
+  # 暴露端口 https://kubernetes.io/zh/docs/concepts/services-networking/service/#nodeport-%E7%B1%BB%E5%9E%8B
+  type: NodePort
+  selector:
+    app: pgadmin
+  ports:
+    - port: 80
+      # 范围限制在30000-32767
+      nodePort: 30433
+---
 # 定义部署方式 https://kubernetes.io/zh/docs/concepts/overview/working-with-objects/kubernetes-objects/#%E6%8F%8F%E8%BF%B0-kubernetes-%E5%AF%B9%E8%B1%A1
 apiVersion: apps/v1
 kind: Deployment
@@ -15,30 +47,20 @@ spec:
       labels:
         app: pgadmin
     spec:
+      volumes:
+        - name: pgadmin-v
+          persistentVolumeClaim:
+            claimName: pgadmin-pvc
       containers:
-      - image: dpage/pgadmin4:latest
-        name: pgadmin
-        env:
-        - name: PGADMIN_DEFAULT_EMAIL
-          value: p@g.cn
-        - name: PGADMIN_DEFAULT_PASSWORD
-          value: postgres
-        ports:
-        - containerPort: 80
----
-# 定义服务 https://kubernetes.io/zh/docs/concepts/services-networking/service/#%E5%AE%9A%E4%B9%89-service
-apiVersion: v1
-kind: Service
-metadata:
-  name: pgadmin-service
-  labels:
-    app: pgadmin
-spec:
-  # 暴露端口 https://kubernetes.io/zh/docs/concepts/services-networking/service/#nodeport-%E7%B1%BB%E5%9E%8B
-  type: NodePort
-  selector:
-    app: pgadmin
-  ports:
-    - port: 80
-      # 范围限制在30000-32767
-      nodePort: 30433
+        - image: dpage/pgadmin4:latest
+          name: pgadmin
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: p@g.cn
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: postgres
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: pgadmin-v
+              mountPath: /var/lib/pgadmin

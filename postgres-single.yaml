@@ -1,36 +1,26 @@
-# 服务
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-service
-  labels:
-    app: postgres
-spec:
-  type: NodePort
-  ports:
-    - port: 5432
-      nodePort: 30432
-  selector:
-    app: postgres
----
-# 有状态组
+# 部署方式
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: postgres-ss
+  name: postgres-deployment
   labels:
     app: postgres
 spec:
-  serviceName: "postgres-service"
-  replicas: 2
   selector:
     matchLabels:
       app: postgres
+  strategy:
+    type: Recreate
+  replicas: 1
   template:
     metadata:
       labels:
         app: postgres
     spec:
+      volumes:
+        - name: postgres-persistent-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
       containers:
         - image: postgis/postgis:12-3.0
           name: postgres
@@ -71,17 +61,20 @@ spec:
             - containerPort: 5432
               name: postgres
           volumeMounts:
-            - name: postgres-vct
+            - name: postgres-persistent-storage
               mountPath: /pv
-  # 根据replicas数量创建PersistentVolumeClaims的模板
-  # 注意：使用kubectl delete -f删除时Persistent Volume Claims不会自动删除。执行 kubectl delete -n default persistentvolumeclaim [持久卷定义名] 进行删除。
-  volumeClaimTemplates:
-    - metadata:
-        name: postgres-vct
-      spec:
-        storageClassName: rook-ceph-block
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 50Gi
+---
+# 服务
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  labels:
+    app: postgres
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+      nodePort: 30432
+  selector:
+    app: postgres

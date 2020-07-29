@@ -1,0 +1,18 @@
+# 注意：暂时只能有一个共享文件系统！
+# https://rook.io/docs/rook/v1.3/ceph-filesystem.html
+apiVersion: ceph.rook.io/v1
+kind: CephFilesystem
+metadata:
+  name: sf
+  namespace: rook-ceph
+spec:
+  metadataPool:
+    replicated:
+      size: 2
+  dataPools:
+    - replicated:
+        size: 2
+  preservePoolsOnDelete: true
+  metadataServer:
+    activeCount: 1
+    activeStandby: true

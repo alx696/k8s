@@ -1,0 +1,26 @@
+# Ceph Dashboard
+# https://rook.io/docs/rook/v1.3/ceph-dashboard.html
+##
+# 创建服务暴露端口
+# kubectl create -f ceph-mgr-dashboard-service.yaml
+# 获取随机生成密码
+# kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode && echo
+##
+apiVersion: v1
+kind: Service
+metadata:
+  name: rook-ceph-mgr-dashboard-service
+  namespace: rook-ceph
+  labels:
+    app: rook-ceph-mgr
+    rook_cluster: rook-ceph
+spec:
+  type: NodePort
+  ports:
+    - port: 8443
+      protocol: TCP
+      targetPort: 30001
+  selector:
+    app: rook-ceph-mgr
+    rook_cluster: rook-ceph
+  sessionAffinity: None

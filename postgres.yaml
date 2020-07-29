@@ -34,13 +34,9 @@ spec:
       containers:
         - image: postgis/postgis:12-3.0
           name: postgres
-          env:
-            - name: PGDATA
-              value: /pv/data
-            - name: POSTGRES_PASSWORD
-              value: postgres
-            - name: TZ
-              value: Asia/Shanghai
+          envFrom:
+            - configMapRef:
+                name: postgres-config
           # http://www.postgres.cn/docs/12/runtime-config-resource.html
           # https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server
           # shared_buffers 共享内存缓冲区量 推荐系统内存的25%（相应max_wal_size也要增加）.
@@ -72,7 +68,7 @@ spec:
               name: postgres
           volumeMounts:
             - name: postgres-vct
-              mountPath: /pv
+              mountPath: /var/lib/postgresql/data
   # 根据replicas数量创建PersistentVolumeClaims的模板
   # 注意：使用kubectl delete -f删除时Persistent Volume Claims不会自动删除。执行 kubectl delete -n default persistentvolumeclaim [持久卷定义名] 进行删除。
   volumeClaimTemplates:

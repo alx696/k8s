@@ -23,7 +23,7 @@ metadata:
     app: postgres
 spec:
   serviceName: "postgres-service"
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: postgres
@@ -37,7 +37,7 @@ spec:
           name: postgres
           envFrom:
             - configMapRef:
-                name: postgres-config
+                name: postgres-env
           # http://www.postgres.cn/docs/12/runtime-config-resource.html
           # https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server
           # shared_buffers 共享内存缓冲区量 推荐系统内存的25%（相应max_wal_size也要增加）.

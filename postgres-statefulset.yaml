@@ -62,7 +62,9 @@ spec:
               "-c",
               "effective_io_concurrency=600",
               "-c",
-              "random_page_cost=2",
+              "random_page_cost=2",,
+              "-c",
+              "jit=off"
             ]
           ports:
             - containerPort: 5432

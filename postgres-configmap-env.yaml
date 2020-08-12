@@ -1,6 +1,9 @@
-# 配置
+##
 # https://kubernetes.io/zh/docs/tasks/configure-pod-container/configure-pod-configmap/#%E5%87%86%E5%A4%87%E5%BC%80%E5%A7%8B
 # kubectl create -f postgres-configmap-env.yaml
+##
+
+# 配置
 apiVersion: v1
 kind: ConfigMap
 metadata:

@@ -1,4 +1,7 @@
-# 注意：2个复制时出现数据表丢失情况！
+##
+# 依赖 postgres-configmap-env.yaml
+##
+
 # 服务
 apiVersion: v1
 kind: Service
@@ -62,7 +65,7 @@ spec:
               "-c",
               "effective_io_concurrency=600",
               "-c",
-              "random_page_cost=2",,
+              "random_page_cost=2",
               "-c",
               "jit=off"
             ]
@@ -78,9 +81,9 @@ spec:
     - metadata:
         name: postgres-vct
       spec:
-        storageClassName: rook-ceph-block
+        storageClassName: rook-cephfs
         accessModes:
-          - ReadWriteOnce
+          - ReadWriteMany
         resources:
           requests:
-            storage: 50Gi
+            storage: 200Gi

@@ -81,9 +81,9 @@ spec:
     - metadata:
         name: postgres-vct
       spec:
-        storageClassName: rook-cephfs
+        storageClassName: rook-ceph-block
         accessModes:
-          - ReadWriteMany
+          - ReadWriteOnce
         resources:
           requests:
             storage: 200Gi
